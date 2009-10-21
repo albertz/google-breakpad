@@ -85,6 +85,7 @@
 
 #ifdef _MSC_VER
 #include <io.h> // for lseek
+#define lseek _lseek
 #endif
 
 #include <iostream>
