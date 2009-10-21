@@ -83,6 +83,10 @@
 #include <unistd.h>
 #endif
 
+#ifdef _MSC_VER
+#include <io.h> // for lseek
+#endif
+
 #include <iostream>
 #include <map>
 #include <string>
