@@ -35,22 +35,15 @@
 
 #include "google_breakpad/processor/minidump.h"
 
+#ifdef _WIN32
+#define NOMINMAX
+#endif
+
 #include <assert.h>
 #include <fcntl.h>
 #include <stdio.h>
 #include <string.h>
 #include <time.h>
-
-#ifdef _WIN32
-#include <io.h>
-typedef SSIZE_T ssize_t;
-#define PRIx64 "llx"
-#define PRIx32 "lx"
-#define snprintf _snprintf
-#else  // _WIN32
-#include <unistd.h>
-#define O_BINARY 0
-#endif  // _WIN32
 
 #include <fstream>
 #include <iostream>
@@ -64,6 +57,22 @@ typedef SSIZE_T ssize_t;
 #include "processor/basic_code_modules.h"
 #include "processor/logging.h"
 #include "processor/scoped_ptr.h"
+
+#ifdef _WIN32
+#include <io.h>
+#include <stdint.h>
+typedef SSIZE_T ssize_t;
+#define PRIx64 "llx"
+#define PRIx32 "lx"
+#define open _open
+#define read _read
+#define lseek _lseek
+#define snprintf _snprintf
+#define gmtime_r(d, res) { struct tm* _t = gmtime(d); memcpy(res, _t, sizeof(tm)); }
+#else  // _WIN32
+#include <unistd.h>
+#define O_BINARY 0
+#endif  // _WIN32
 
 
 namespace google_breakpad {

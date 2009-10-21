@@ -44,6 +44,7 @@
 
 #ifdef _WIN32
 #define snprintf _snprintf
+#define localtime_r(d, res) { struct tm* _t = localtime(d); memcpy(res, _t, sizeof(tm)); }
 #endif
 
 namespace google_breakpad {
