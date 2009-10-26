@@ -41,6 +41,7 @@
 #include <map>
 #include <stack>
 #include <utility>
+#include <memory>
 
 #include "common/dwarf/bytereader-inl.h"
 #include "common/dwarf/bytereader.h"
