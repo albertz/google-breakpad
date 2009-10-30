@@ -33,8 +33,7 @@
 #ifndef _PDB_SOURCE_LINE_WRITER_H__
 #define _PDB_SOURCE_LINE_WRITER_H__
 
-//#include "CComPtr.h"
-#include <atlbase.h>
+#include <atlcomcli.h>
 
 #include <hash_map>
 #include <string>
@@ -44,8 +43,6 @@ struct IDiaSession;
 struct IDiaSymbol;
 
 namespace google_breakpad {
-
-using ATL::CComPtr;
 
 using std::wstring;
 using stdext::hash_map;
