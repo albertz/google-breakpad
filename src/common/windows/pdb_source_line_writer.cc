@@ -70,6 +70,30 @@ PDBSourceLineWriter::PDBSourceLineWriter() : output_(NULL) {
 PDBSourceLineWriter::~PDBSourceLineWriter() {
 }
 
+static HRESULT CoCreateDiaDataSource(CComPtr<IDiaDataSource>& data_source)
+{
+    HMODULE hmodule = LoadLibraryA("MSDIA100");
+    if (!hmodule)
+        return HRESULT_FROM_WIN32(GetLastError()); // library not found
+
+    BOOL (WINAPI*DllGetClassObject)(REFCLSID,REFIID,LPVOID) =
+        (BOOL(WINAPI*)(REFCLSID,REFIID,LPVOID))GetProcAddress(hmodule, "DllGetClassObject");
+
+    if (!DllGetClassObject) 
+        return HRESULT_FROM_WIN32(GetLastError());
+
+    CComPtr<IClassFactory> pClassFactory;
+    HRESULT hr = DllGetClassObject(CLSID_DiaSource, IID_IClassFactory, &pClassFactory);
+    if (FAILED(hr))
+        return hr;
+
+    hr = pClassFactory->CreateInstance(NULL, IID_IDiaDataSource, (void**)&data_source);
+    if (FAILED(hr))
+        return hr;
+
+    return S_OK;
+}
+
 bool PDBSourceLineWriter::Open(const wstring &file, FileFormat format) {
   Close();
 
@@ -79,14 +103,8 @@ bool PDBSourceLineWriter::Open(const wstring &file, FileFormat format) {
   }
 
   CComPtr<IDiaDataSource> data_source;
-  if (FAILED(data_source.CoCreateInstance(CLSID_DiaSource))) {
-    const int kGuidSize = 64;
-    wchar_t classid[kGuidSize] = {0};
-    StringFromGUID2(CLSID_DiaSource, classid, kGuidSize);
-    // vc80 uses bce36434-2c24-499e-bf49-8bd99b0eeb68.
-    // vc90 uses 4C41678E-887B-4365-A09E-925D28DB33C2.
-    fprintf(stderr, "CoCreateInstance CLSID_DiaSource %S failed "
-            "(msdia*.dll unregistered?)\n", classid);
+  if (FAILED(CoCreateDiaDataSource(data_source))) {
+    fprintf(stderr, "CoCreateInstance CLSID_DiaSource failed\n");
     return false;
   }
 
